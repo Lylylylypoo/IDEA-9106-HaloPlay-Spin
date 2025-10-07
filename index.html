@@ -7,15 +7,17 @@
 <style>
   body {
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     background: radial-gradient(circle at center, #f5deb3, #d2b48c);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* start from top on mobile */
+    padding-top: 40px;
     font-family: "Poppins", sans-serif;
     color: #fff;
     text-align: center;
+    overflow-y: auto; /* allow scroll if needed */
   }
 
   h1 {
@@ -23,7 +25,7 @@
     font-size: 2.2em;
     font-weight: 700;
     letter-spacing: 1px;
-    margin-bottom: 35px;
+    margin-bottom: 25px;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   }
 
@@ -31,6 +33,7 @@
     position: relative;
     width: 320px;
     height: 320px;
+    margin-bottom: 20px;
   }
 
   #wheelCanvas {
@@ -42,14 +45,14 @@
 
   .pointer {
     position: absolute;
-    top: -30px;
+    top: -25px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-top: 18px solid white;
+    border-top: 16px solid white;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
   }
 
@@ -59,7 +62,7 @@
     border: none;
     padding: 12px 24px;
     border-radius: 6px;
-    margin-top: 25px;
+    margin-top: 15px;
     font-size: 18px;
     cursor: pointer;
     transition: 0.3s;
@@ -75,14 +78,14 @@
   }
 
   #result {
-    margin-top: 20px;
-    font-size: 1.4em;
+    margin-top: 18px;
+    font-size: 1.3em;
   }
 
   @media (max-width: 480px) {
     h1 {
       font-size: 1.8em;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     .wheel-container {
       width: 260px;
@@ -94,6 +97,7 @@
     button {
       font-size: 16px;
       padding: 10px 20px;
+      margin-top: 10px;
     }
   }
 </style>
@@ -121,14 +125,12 @@
   labels[0] = "Free Coffee ☕";
   labels[10] = "$3 Discount 💸";
 
-  // color palette
   const colors = [];
   for (let i = 0; i < slices; i++) {
     const hue = (i * 360) / slices;
     colors.push(`hsl(${hue}, 70%, 50%)`);
   }
 
-  // draw wheel
   for (let i = 0; i < slices; i++) {
     const startAngle = (i * 2 * Math.PI) / slices;
     const endAngle = ((i + 1) * 2 * Math.PI) / slices;
@@ -149,7 +151,6 @@
     ctx.restore();
   }
 
-  // friendly messages
   const politeMessages = [
     "💫 Almost won! Try again soon.",
     "🍀 Better luck next spin!",
@@ -157,14 +158,14 @@
     "🌟 Thanks for playing!"
   ];
 
-  let hasSpun = false; // track if already used
+  let hasSpun = false;
 
   spinButton.addEventListener("click", () => {
-    if (hasSpun) return; // prevent extra spins
+    if (hasSpun) return;
 
     result.textContent = "";
     spinButton.disabled = true;
-    hasSpun = true; // mark as used
+    hasSpun = true;
 
     const prizeIndex = Math.floor(Math.random() * slices);
     const sliceAngle = 360 / slices;
@@ -187,8 +188,7 @@
         result.style.color = "#27ae60";
       }
 
-      // keep disabled permanently
-      spinButton.textContent = "SPIN USED";
+      spinButton.textContent = "🎉 Thanks for playing!";
       spinButton.disabled = true;
     }, 5200);
   });
