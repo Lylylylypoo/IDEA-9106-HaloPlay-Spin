@@ -15,6 +15,7 @@
     justify-content: center;
     font-family: "Poppins", sans-serif;
     color: #fff;
+    text-align: center;
   }
 
   h1 {
@@ -64,13 +65,36 @@
     transition: 0.3s;
   }
 
-  button:hover {
+  button:hover:enabled {
     background-color: #a52a2a;
+  }
+
+  button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
   }
 
   #result {
     margin-top: 20px;
     font-size: 1.4em;
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 25px;
+    }
+    .wheel-container {
+      width: 260px;
+      height: 260px;
+    }
+    #wheelCanvas {
+      border-width: 6px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+    }
   }
 </style>
 </head>
@@ -92,19 +116,19 @@
   const slices = 20;
   const radius = canvas.width / 2;
 
-  // 18 "Sorry" + 2 prizes opposite each other (index 0 and 10)
-  const labels = Array(slices).fill("Sorry");
+  // 18 "Good try" + 2 prizes opposite each other (index 0 and 10)
+  const labels = Array(slices).fill("Good try");
   labels[0] = "Free Coffee ☕";
   labels[10] = "$3 Discount 💸";
 
-  // color palette for visibility
+  // color palette
   const colors = [];
   for (let i = 0; i < slices; i++) {
     const hue = (i * 360) / slices;
     colors.push(`hsl(${hue}, 70%, 50%)`);
   }
 
-  // Draw the wheel
+  // draw wheel
   for (let i = 0; i < slices; i++) {
     const startAngle = (i * 2 * Math.PI) / slices;
     const endAngle = ((i + 1) * 2 * Math.PI) / slices;
@@ -115,7 +139,6 @@
     ctx.fillStyle = colors[i];
     ctx.fill();
 
-    // Add text
     ctx.save();
     ctx.translate(radius, radius);
     ctx.rotate(startAngle + Math.PI / slices);
@@ -126,14 +149,24 @@
     ctx.restore();
   }
 
+  // friendly messages
+  const politeMessages = [
+    "💫 Almost won! Try again soon.",
+    "🍀 Better luck next spin!",
+    "😊 Maybe next time!",
+    "🌟 Thanks for playing!"
+  ];
+
+  let hasSpun = false; // track if already used
+
   spinButton.addEventListener("click", () => {
+    if (hasSpun) return; // prevent extra spins
+
     result.textContent = "";
     spinButton.disabled = true;
+    hasSpun = true; // mark as used
 
-    // random index (equal chance)
     const prizeIndex = Math.floor(Math.random() * slices);
-
-    // Calculate rotation so selected index lands at top (12 o’clock)
     const sliceAngle = 360 / slices;
     const baseRotation = 270;
     const stopAngle = baseRotation - (prizeIndex * sliceAngle + sliceAngle / 2);
@@ -145,14 +178,18 @@
 
     setTimeout(() => {
       const prizeText = labels[prizeIndex];
-      if (prizeText.includes("Sorry")) {
-        result.textContent = "😢 Sorry, no luck this time.";
+      if (prizeText.includes("Good try")) {
+        const msg = politeMessages[Math.floor(Math.random() * politeMessages.length)];
+        result.textContent = msg;
         result.style.color = "#8b0000";
       } else {
         result.textContent = `🎉 ${prizeText}`;
         result.style.color = "#27ae60";
       }
-      spinButton.disabled = false;
+
+      // keep disabled permanently
+      spinButton.textContent = "SPIN USED";
+      spinButton.disabled = true;
     }, 5200);
   });
 </script>
