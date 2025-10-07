@@ -8,7 +8,7 @@
   body {
     margin: 0;
     height: 100vh;
-    background: radial-gradient(circle at center, #f5deb3, #d2b48c); /* lighter warm tones */
+    background: radial-gradient(circle at center, #f5deb3, #d2b48c);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,8 +19,8 @@
 
   h1 {
     color: #8b0000;
-    font-size: 2.2em;        /* slightly bigger */
-    font-weight: 700;        /* bolder */
+    font-size: 2.2em;
+    font-weight: 700;
     letter-spacing: 1px;
     margin-bottom: 35px;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
@@ -28,15 +28,15 @@
 
   .wheel-container {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 320px;
+    height: 320px;
   }
 
   #wheelCanvas {
     border-radius: 50%;
     border: 8px solid #8b5a2b;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-    transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
   .pointer {
@@ -77,7 +77,7 @@
 <body>
   <h1>🎯 Lucky Spin</h1>
   <div class="wheel-container">
-    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <canvas id="wheelCanvas" width="320" height="320"></canvas>
     <div class="pointer"></div>
   </div>
   <button id="spinButton">SPIN</button>
@@ -89,10 +89,20 @@
   const spinButton = document.getElementById("spinButton");
   const result = document.getElementById("result");
 
-  const slices = 6;
+  const slices = 20;
   const radius = canvas.width / 2;
-  const colors = ["#e74c3c", "#f1c40f", "#2ecc71", "#3498db", "#9b59b6", "#e67e22"];
-  const labels = ["Sorry", "Sorry", "Sorry", "Sorry", "Free Coffee ☕", "$3 Discount 💸"];
+
+  // 18 "Sorry" + 2 prizes opposite each other (index 0 and 10)
+  const labels = Array(slices).fill("Sorry");
+  labels[0] = "Free Coffee ☕";
+  labels[10] = "$3 Discount 💸";
+
+  // color palette for visibility
+  const colors = [];
+  for (let i = 0; i < slices; i++) {
+    const hue = (i * 360) / slices;
+    colors.push(`hsl(${hue}, 70%, 50%)`);
+  }
 
   // Draw the wheel
   for (let i = 0; i < slices; i++) {
@@ -111,8 +121,8 @@
     ctx.rotate(startAngle + Math.PI / slices);
     ctx.textAlign = "right";
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 16px Poppins";
-    ctx.fillText(labels[i], radius - 10, 10);
+    ctx.font = "bold 12px Poppins";
+    ctx.fillText(labels[i], radius - 8, 4);
     ctx.restore();
   }
 
@@ -123,14 +133,14 @@
     // random index (equal chance)
     const prizeIndex = Math.floor(Math.random() * slices);
 
-    // Calculate the exact rotation so the selected index lands at top (12 o'clock)
+    // Calculate rotation so selected index lands at top (12 o’clock)
     const sliceAngle = 360 / slices;
-    const baseRotation = 270; 
+    const baseRotation = 270;
     const stopAngle = baseRotation - (prizeIndex * sliceAngle + sliceAngle / 2);
-    const randomFullSpins = 5;
+    const randomFullSpins = 8;
     const finalRotation = randomFullSpins * 360 + stopAngle;
 
-    canvas.style.transition = "transform 4s cubic-bezier(0.33, 1, 0.68, 1)";
+    canvas.style.transition = "transform 5s cubic-bezier(0.33, 1, 0.68, 1)";
     canvas.style.transform = `rotate(${finalRotation}deg)`;
 
     setTimeout(() => {
@@ -140,10 +150,10 @@
         result.style.color = "#8b0000";
       } else {
         result.textContent = `🎉 ${prizeText}`;
-        result.style.color = "#27ae60"; /* darker green */
+        result.style.color = "#27ae60";
       }
       spinButton.disabled = false;
-    }, 4200);
+    }, 5200);
   });
 </script>
 </body>
