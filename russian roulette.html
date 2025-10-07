@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lucky Spin</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at center, #f5deb3, #d2b48c); /* lighter warm tones */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+  }
+
+  h1 {
+    color: #8b0000;
+    font-size: 2.2em;        /* slightly bigger */
+    font-weight: 700;        /* bolder */
+    letter-spacing: 1px;
+    margin-bottom: 35px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .wheel-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+  }
+
+  #wheelCanvas {
+    border-radius: 50%;
+    border: 8px solid #8b5a2b;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  .pointer {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 18px solid white;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  }
+
+  button {
+    background-color: #8b0000;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    margin-top: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background-color: #a52a2a;
+  }
+
+  #result {
+    margin-top: 20px;
+    font-size: 1.4em;
+  }
+</style>
+</head>
+<body>
+  <h1>🎯 Lucky Spin</h1>
+  <div class="wheel-container">
+    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <div class="pointer"></div>
+  </div>
+  <button id="spinButton">SPIN</button>
+  <div id="result"></div>
+
+<script>
+  const canvas = document.getElementById("wheelCanvas");
+  const ctx = canvas.getContext("2d");
+  const spinButton = document.getElementById("spinButton");
+  const result = document.getElementById("result");
+
+  const slices = 6;
+  const radius = canvas.width / 2;
+  const colors = ["#e74c3c", "#f1c40f", "#2ecc71", "#3498db", "#9b59b6", "#e67e22"];
+  const labels = ["Sorry", "Sorry", "Sorry", "Sorry", "Free Coffee ☕", "$3 Discount 💸"];
+
+  // Draw the wheel
+  for (let i = 0; i < slices; i++) {
+    const startAngle = (i * 2 * Math.PI) / slices;
+    const endAngle = ((i + 1) * 2 * Math.PI) / slices;
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+
+    // Add text
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(startAngle + Math.PI / slices);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 16px Poppins";
+    ctx.fillText(labels[i], radius - 10, 10);
+    ctx.restore();
+  }
+
+  spinButton.addEventListener("click", () => {
+    result.textContent = "";
+    spinButton.disabled = true;
+
+    // random index (equal chance)
+    const prizeIndex = Math.floor(Math.random() * slices);
+
+    // Calculate the exact rotation so the selected index lands at top (12 o'clock)
+    const sliceAngle = 360 / slices;
+    const baseRotation = 270; 
+    const stopAngle = baseRotation - (prizeIndex * sliceAngle + sliceAngle / 2);
+    const randomFullSpins = 5;
+    const finalRotation = randomFullSpins * 360 + stopAngle;
+
+    canvas.style.transition = "transform 4s cubic-bezier(0.33, 1, 0.68, 1)";
+    canvas.style.transform = `rotate(${finalRotation}deg)`;
+
+    setTimeout(() => {
+      const prizeText = labels[prizeIndex];
+      if (prizeText.includes("Sorry")) {
+        result.textContent = "😢 Sorry, no luck this time.";
+        result.style.color = "#8b0000";
+      } else {
+        result.textContent = `🎉 ${prizeText}`;
+        result.style.color = "#27ae60"; /* darker green */
+      }
+      spinButton.disabled = false;
+    }, 4200);
+  });
+</script>
+</body>
+</html>
